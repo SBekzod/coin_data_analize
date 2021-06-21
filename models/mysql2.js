@@ -15,17 +15,18 @@ class MySql {
             waitForConnections: true,
             queueLimit: 0,
         })
+
     }
 
-    async getCoinData() {
-        if (!this.con) await this.connection();
-        const query_result = await this.con.query('select * from bitcoin_price_collection');
-        return query_result[0][0];
-    }
+    // async getCoinData() {
+    //     if (!this.con) await this.connection();
+    //     const query_result = await this.con.query('select * from bitcoin_tick_collection');
+    //     return query_result[0][0];
+    // }
 
     async getCoinDataById(key) {
         if (!this.con) await this.connection();
-        const query_result = await this.con.query('select * from bitcoin_price_collection where id = ?', [key]);
+        const query_result = await this.con.query('select * from bitcoin_tick_collection where id = ?', [key]);
         return query_result[0][0];
     }
 
