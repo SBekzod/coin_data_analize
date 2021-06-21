@@ -17,7 +17,7 @@ setTimeout(async function() {
             fir_target[`${i}`] = {start_day: start_day, '0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0, 'total': 0};
             sec_target[`${i}`] = {start_day: start_day, '0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0, 'total': 0};
 
-            let response = await db.prepareOneDayTicksBitcoin(start_day, end_day)
+            let response = await db.prepareOneDayTicksDoge(start_day, end_day)
             console.log(`Total tick counts: ${response.length}`);
             response.map(ele => {
                 console.log('*****************');
@@ -39,7 +39,7 @@ setTimeout(async function() {
 
 
 function declareDigits(price, i) {
-    let numb = Math.floor(price * 100) % 100, first_digit, second_digit;
+    let numb = Math.floor(price * 100000) % 100, first_digit, second_digit;
     if(numb < 10) {
         first_digit = 0;
         second_digit = numb;
