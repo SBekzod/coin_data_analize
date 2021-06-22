@@ -1,0 +1,14 @@
+feat: two digit analysis
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Mon Jun 21 20:15:08 2021 +0900
+#
+# On branch master
+# Changes to be committed:
+#	new file:   .idea/dictionaries/bekzo.xml
+#	modified:   models/mysql2.js
+#	modified:   process_server.js
+#	new file:   process_server_comp.js
+#
