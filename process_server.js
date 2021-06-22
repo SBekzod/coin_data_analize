@@ -41,8 +41,8 @@ setTimeout(async function() {
 
 
 function declareDigits(price, i) {
-    let numb = Math.floor(price * 100) % 100, first_digit, second_digit;
-    // let numb = Math.floor(price * 100000) % 100, first_digit, second_digit;
+    let numb = Math.floor(price * 1000 / 10) % 100, first_digit, second_digit;
+    // let numb = Math.floor(price * 1000000 / 10) % 100, first_digit, second_digit;
     if(numb < 10) {
         first_digit = 0;
         second_digit = numb;

@@ -88,9 +88,9 @@ function cumulateDigits(ele, key, coin_type) {
 
     let numb, first_digit, second_digit;
     if (coin_type === 'doge') {
-        numb = Math.floor(ele.close * 100000) % 100
+        numb = Math.floor(ele.close * 1000000 / 10) % 100
     } else {
-        numb = Math.floor(ele.close * 100) % 100;
+        numb = Math.floor(ele.close * 1000 / 10) % 100;
     }
 
     if (numb < 10) {
