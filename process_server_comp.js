@@ -4,6 +4,9 @@ const dotenv = require('dotenv');
 dotenv.config({path: './.env'});
 const MySql = require('./models/mysql2');
 const db = new MySql();
+const exportCoinDataToExcel = require('./models/exportService');
+const filePath = './outputs/excel-from-js.xlsx'
+
 
 let target_btc = {}, zero_btc = 0;
 let target_eth = {}, zero_eth = 0;
@@ -38,10 +41,18 @@ setTimeout(async function() {
         console.log(`ETH total ${Object.keys(target_eth).length} and double zero came ${zero_eth} times`);
         console.log(`DOGE total ${Object.keys(target_doge).length} and double zero came ${zero_doge} times`);
 
+
+        // Transfer to Excel
+        const workSheetColumnNames = ['TIME_UTC', 'SUMMARY', 'DB_ID', 'TIMESTAMP', 'CLOSE', 'TIME12'];
+        const workSheetName = 'BTC'
+        exportCoinDataToExcel(target_btc, workSheetColumnNames, workSheetName, filePath);
+
+        // console.log(target_btc);
+
         // GETTING WINNER INFORMATION
-        preparingWinnerData();
-        console.log('FINAL DATA');
-        console.log(count_wins);
+        // preparingWinnerData();
+        // console.log('FINAL DATA');
+        // console.log(count_wins);
 
     } catch(err) {
         console.log(err);
@@ -53,10 +64,23 @@ function preparingCoinData(raw_data, coin_type) {
     raw_data.map(ele => {
         let time = new Date(parseInt(ele['binstamp']));
         if(time.getSeconds() % 10 === 0) {
-            let key = `${time.getUTCHours()}:${time.getMinutes()}:${time.getSeconds()}`;
+            let hour = shapingTime(time.getUTCHours());
+            let minutes = shapingTime(time.getMinutes());
+            let seconds = shapingTime(time.getSeconds());
+            let key = `${hour}:${minutes}:${seconds}`;
             cumulateDigits(ele, key, coin_type);
         }
     })
+}
+
+function shapingTime(value) {
+    if(value == 0) {
+        return '00';
+    } else if (value > 0 && value < 10) {
+        return `0${value}`;
+    } else {
+        return value;
+    }
 }
 
 
