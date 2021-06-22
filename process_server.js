@@ -4,6 +4,9 @@ const dotenv = require('dotenv');
 dotenv.config({path: './.env'});
 const MySql = require('./models/mysql2');
 const db = new MySql();
+const exportCoinDataToExcel = require('./models/exportServiceAdd');
+const filePath = './outputs/excel-coin.xlsx'
+
 
 const fir_target = {};
 const sec_target = {};
@@ -17,8 +20,8 @@ setTimeout(async function() {
             fir_target[`${i}`] = {start_day: start_day, '0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0, 'total': 0};
             sec_target[`${i}`] = {start_day: start_day, '0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0, 'total': 0};
 
-            // let response = await db.prepareOneDayTicksBitcoin(start_day, end_day)
-            let response = await db.prepareOneDayTicksEther(start_day, end_day)
+            let response = await db.prepareOneDayTicksBitcoin(start_day, end_day)
+            // let response = await db.prepareOneDayTicksEther(start_day, end_day)
             // let response = await db.prepareOneDayTicksDoge(start_day, end_day)
             console.log(`Total tick counts: ${response.length}`);
             response.map(ele => {
@@ -33,6 +36,9 @@ setTimeout(async function() {
         // Results of first and second digits
         console.log('fir_target: ', fir_target);
         console.log('sec_target: ', sec_target);
+        const workSheetColumnNames = ['ID', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'start_day'];
+        exportCoinDataToExcel(fir_target, workSheetColumnNames, 'COIN_FIRST', filePath);
+        // exportCoinDataToExcel(sec_target, workSheetColumnNames, 'COIN_SECOND', filePath);
 
     } catch(err) {
         console.log(err);
