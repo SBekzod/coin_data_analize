@@ -23,6 +23,8 @@ setTimeout(async function() {
             let response = await db.prepareOneDayTicksBitcoin(start_day, end_day)
             // let response = await db.prepareOneDayTicksEther(start_day, end_day)
             // let response = await db.prepareOneDayTicksDoge(start_day, end_day)
+            // let response = await db.prepareOneDayTickBNB(start_day, end_day)
+
             console.log(`Total tick counts: ${response.length}`);
             response.map(ele => {
                 console.log('*****************');

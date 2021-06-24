@@ -9,6 +9,6 @@ feat: two digit analysis
 # Changes to be committed:
 #	new file:   .idea/dictionaries/bekzo.xml
 #	modified:   models/mysql2.js
-#	modified:   process_server.js
+#	modified:   process_server_digit_type_one.js
 #	new file:   process_server_comp.js
 #

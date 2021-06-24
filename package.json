@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "SET NODE.ENV=PRODUCTION&& nodemon process_server.js",
+    "start": "SET NODE.ENV=PRODUCTION&& nodemon process_server_digit_type_one.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "SET NODE.ENV=DEVELOPMENT&& nodemon process_server.js"
+    "dev": "SET NODE.ENV=DEVELOPMENT&& nodemon process_server_digit_type_one.js"
   },
   "keywords": [],
   "author": "",

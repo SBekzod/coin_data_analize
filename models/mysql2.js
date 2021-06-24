@@ -39,6 +39,13 @@ class MySql {
         return quantity;
     }
 
+    async prepareOneDayTickBNB(start, end) {
+        if (!this.con) await this.connection();
+        const query_result = await this.con.query('select * from bnb_tick_collection where coltime >= ? and coltime <= ? ORDER BY id', [start, end]);
+        let quantity = query_result[0];
+        return quantity;
+    }
+
 
 }
 
