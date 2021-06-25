@@ -9,6 +9,6 @@ feat: two digit analysis
 # Changes to be committed:
 #	new file:   .idea/dictionaries/bekzo.xml
 #	modified:   models/mysql2.js
-#	modified:   process_2digits_1coin_1sec.js
-#	new file:   process_3coins_10sec_old.js
+#	modified:   process_1coin_1sec_2digits_analysis.js
+#	new file:   process_3coins_10sec_analysis.js
 #
