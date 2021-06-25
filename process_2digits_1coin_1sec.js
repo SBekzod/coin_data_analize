@@ -5,7 +5,8 @@ dotenv.config({path: './.env'});
 const MySql = require('./models/mysql2');
 const db = new MySql();
 const exportCoinDataToExcel = require('./models/exportServiceAdd');
-const filePath = './outputs/excel-coin.xlsx'
+const filePath_one = './outputs/excel-coin-1.xlsx'
+const filePath_sec = './outputs/excel-coin-2.xlsx'
 
 
 const fir_target = {};
@@ -22,7 +23,6 @@ setTimeout(async function() {
 
             let response = await db.prepareOneDayTicksBitcoin(start_day, end_day)
             // let response = await db.prepareOneDayTicksEther(start_day, end_day)
-            // let response = await db.prepareOneDayTicksDoge(start_day, end_day)
             // let response = await db.prepareOneDayTickBNB(start_day, end_day)
 
             console.log(`Total tick counts: ${response.length}`);
@@ -39,8 +39,8 @@ setTimeout(async function() {
         console.log('fir_target: ', fir_target);
         console.log('sec_target: ', sec_target);
         const workSheetColumnNames = ['ID', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'start_day'];
-        exportCoinDataToExcel(fir_target, workSheetColumnNames, 'COIN_FIRST', filePath);
-        // exportCoinDataToExcel(sec_target, workSheetColumnNames, 'COIN_SECOND', filePath);
+        exportCoinDataToExcel(fir_target, workSheetColumnNames, 'COIN_FIRST', filePath_one);
+        exportCoinDataToExcel(sec_target, workSheetColumnNames, 'COIN_SECOND', filePath_sec);
 
     } catch(err) {
         console.log(err);

@@ -10,11 +10,11 @@ const filePath = './outputs/excel-from-js.xlsx'
 
 let target_btc = {}, zero_btc = 0;
 let target_eth = {}, zero_eth = 0;
-let target_doge = {}, zero_doge = 0;
+let target_bnb = {}, zero_bnb = 0;
 let count_wins = {
     'btc': {'win': 0, 'draw': 0},
     'eth': {'win': 0, 'draw': 0},
-    'doge': {'win': 0, 'draw': 0},
+    'bnb': {'win': 0, 'draw': 0},
     'super_draw': 0,
     'rounds_checked': 0,
 };
@@ -29,30 +29,30 @@ setTimeout(async function() {
 
             let res_bit = await db.prepareOneDayTicksBitcoin(start_day, end_day)
             let res_eth = await db.prepareOneDayTicksEther(start_day, end_day)
-            let res_doge = await db.prepareOneDayTicksDoge(start_day, end_day)
+            let res_bnb = await db.prepareOneDayTickBNB(start_day, end_day)
             preparingCoinData(res_bit, 'bitcoin');
             preparingCoinData(res_eth, 'ethereum');
-            preparingCoinData(res_doge, 'doge');
+            preparingCoinData(res_bnb, 'binance');
         }
 
         // Results
         console.log('::RESULTS::');
         console.log(`BTC total ${Object.keys(target_btc).length} and double zero came ${zero_btc} times`);
         console.log(`ETH total ${Object.keys(target_eth).length} and double zero came ${zero_eth} times`);
-        console.log(`DOGE total ${Object.keys(target_doge).length} and double zero came ${zero_doge} times`);
+        console.log(`BNB total ${Object.keys(target_bnb).length} and double zero came ${zero_bnb} times`);
 
 
         // Transfer to Excel
-        const workSheetColumnNames = ['TIME_UTC', 'SUMMARY', 'DB_ID', 'TIMESTAMP', 'CLOSE', 'TIME12'];
-        const workSheetName = 'BTC'
-        exportCoinDataToExcel(target_btc, workSheetColumnNames, workSheetName, filePath);
+        // const workSheetColumnNames = ['TIME_UTC', 'SUMMARY', 'DB_ID', 'TIMESTAMP', 'CLOSE', 'TIME12'];
+        // const workSheetName = 'BTC'
+        // exportCoinDataToExcel(target_btc, workSheetColumnNames, workSheetName, filePath);
 
         // console.log(target_btc);
 
         // GETTING WINNER INFORMATION
-        // preparingWinnerData();
-        // console.log('FINAL DATA');
-        // console.log(count_wins);
+        preparingWinnerData();
+        console.log('FINAL DATA');
+        console.log(count_wins);
 
     } catch(err) {
         console.log(err);
@@ -110,7 +110,7 @@ function cumulateDigits(ele, key, coin_type) {
         } else if (coin_type == 'ethereum') {
             zero_eth++;
         } else {
-            zero_doge++;
+            zero_bnb++;
         }
         summary = 10;
     }
@@ -122,7 +122,7 @@ function cumulateDigits(ele, key, coin_type) {
     } else if (coin_type === 'ethereum') {
         target_eth[`${key}`] = {summary, data: ele};
     } else {
-        target_doge[`${key}`] = {summary, data: ele};
+        target_bnb[`${key}`] = {summary, data: ele};
     }
 
 }
@@ -130,30 +130,30 @@ function cumulateDigits(ele, key, coin_type) {
 function preparingWinnerData() {
     Object.keys(target_btc).forEach((key) => {
         let ele = target_btc[`${key}`];
-        if (target_eth.hasOwnProperty(`${key}`) && target_doge.hasOwnProperty(`${key}`)) {
+        if (target_eth.hasOwnProperty(`${key}`) && target_bnb.hasOwnProperty(`${key}`)) {
             count_wins['rounds_checked']++;
             console.log('*****************');
 
             let btc_amount = ele['summary'];
             let eth_amount = target_eth[`${key}`]['summary'];
-            let doge_amount = target_doge[`${key}`]['summary'];
-            if (btc_amount > eth_amount && btc_amount > doge_amount) {
+            let bnb_amount = target_bnb[`${key}`]['summary'];
+            if (btc_amount > eth_amount && btc_amount > bnb_amount) {
                 count_wins['btc']['win']++;
-            } else if (eth_amount > btc_amount && eth_amount > doge_amount) {
+            } else if (eth_amount > btc_amount && eth_amount > bnb_amount) {
                 count_wins['eth']['win']++;
-            } else if (doge_amount > eth_amount && doge_amount > btc_amount) {
-                count_wins['doge']['win']++;
-            } else if (eth_amount === btc_amount && eth_amount === doge_amount) {
+            } else if (bnb_amount > eth_amount && bnb_amount > btc_amount) {
+                count_wins['bnb']['win']++;
+            } else if (eth_amount === btc_amount && eth_amount === bnb_amount) {
                 count_wins['super_draw']++;
             } else if (eth_amount === btc_amount) {
                 count_wins['btc']['draw']++;
                 count_wins['eth']['draw']++;
-            } else if (doge_amount === btc_amount) {
+            } else if (bnb_amount === btc_amount) {
                 count_wins['btc']['draw']++;
-                count_wins['doge']['draw']++;
-            } else if (eth_amount === doge_amount) {
+                count_wins['bnb']['draw']++;
+            } else if (eth_amount === bnb_amount) {
                 count_wins['eth']['draw']++;
-                count_wins['doge']['draw']++;
+                count_wins['bnb']['draw']++;
             } else {
                 console.log('SHOULD NOT BE COMMITTED');
             }
