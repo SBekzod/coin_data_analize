@@ -4,10 +4,10 @@ const dotenv = require('dotenv');
 dotenv.config({path: './.env'});
 const MySql = require('./models/mysql2');
 const db = new MySql();
-const exportCoinDataToExcel = require('./models/exportServiceGrouper');
-const filePath_btc = './outputs/btc-3mx15s.xlsx';
-const filePath_eth = './outputs/eth-3mx15s.xlsx';
-const filePath_bnb = './outputs/bnb-3mx15s.xlsx';
+const exportCoinDataToExcel = require('./models/exportService');
+const filePath_btc = './outputs/btc-15s.xlsx'
+const filePath_eth = './outputs/eth-15s.xlsx'
+const filePath_bnb = './outputs/bnb-15s.xlsx'
 
 
 let target_btc = {}, target_eth = {}, target_bnb = {};
@@ -16,6 +16,7 @@ let doubles_btc = {'00': 0, '11': 0, '22': 0, '33': 0, '44': 0, '55': 0, '66': 0
 let doubles_eth = {'00': 0, '11': 0, '22': 0, '33': 0, '44': 0, '55': 0, '66': 0, '77': 0, '88': 0, '99': 0};
 let doubles_bnb = {'00': 0, '11': 0, '22': 0, '33': 0, '44': 0, '55': 0, '66': 0, '77': 0, '88': 0, '99': 0};
 
+
 let count_wins = {
     'btc': {'win': 0, 'draw': 0},
     'eth': {'win': 0, 'draw': 0},
@@ -23,10 +24,6 @@ let count_wins = {
     'super_draw': 0,
     'rounds_checked': 0,
 };
-let map_btc = new Map();
-let map_eth = new Map();
-let map_bnb = new Map();
-
 
 setTimeout(async function() {
 
@@ -49,22 +46,21 @@ setTimeout(async function() {
         console.log(`BTC total ${Object.keys(target_btc).length}`);
         console.log(`ETH total ${Object.keys(target_eth).length}`);
         console.log(`BNB total ${Object.keys(target_bnb).length}`);
-        // console.log(target_btc);
+        // console.log('btc:', doubles_btc);
+        // console.log('eth:', doubles_eth);
+        // console.log('bnb:', doubles_bnb);
 
-        makingRoundsData(target_btc, map_btc);
-        makingRoundsData(target_eth, map_eth);
-        makingRoundsData(target_bnb, map_bnb);
-        // console.log(map_bnb);
 
         // Transfer to Excel
-        const workSheetColumnNames = ['Rounds', 'TIME_MIN', 'TOTAL'];
-        exportCoinDataToExcel(map_btc, workSheetColumnNames, 'btc_3min', filePath_btc);
-        exportCoinDataToExcel(map_eth, workSheetColumnNames, 'eth_3min', filePath_eth);
-        exportCoinDataToExcel(map_bnb, workSheetColumnNames, 'bnb_3min', filePath_bnb);
-
+        const workSheetColumnNames = ['TIME_UTC', 'SUMMARY', 'DB_ID', 'TIMESTAMP', 'CLOSE', 'TIME12'];
+        exportCoinDataToExcel(target_btc, workSheetColumnNames, 'btc_3mx15s', filePath_btc);
+        exportCoinDataToExcel(target_eth, workSheetColumnNames, 'eth_3mx15s', filePath_eth);
+        exportCoinDataToExcel(target_bnb, workSheetColumnNames, 'bnb_3mx15s', filePath_bnb);
+        // console.log(target_btc);
 
         // GETTING WINNER INFORMATION
         preparingWinnerData();
+        console.log('FINAL DATA');
         console.log(count_wins);
 
     } catch(err) {
@@ -97,6 +93,7 @@ function shapingTime(value) {
         return value;
     }
 }
+
 
 // CUMULATIVE SUMMARY CALCULATION
 function cumulateDigits(ele, key, coin_type) {
@@ -171,71 +168,44 @@ function cumulateDigits(ele, key, coin_type) {
 
 }
 
-// PREPARING WIN INFO
 function preparingWinnerData() {
+    Object.keys(target_btc).forEach((key) => {
+        let ele = target_btc[`${key}`];
+        if (target_eth.hasOwnProperty(`${key}`) && target_bnb.hasOwnProperty(`${key}`)) {
+            count_wins['rounds_checked']++;
+            console.log('*****************');
 
-    map_btc.forEach(function(value_btc, key) {
-        count_wins['rounds_checked']++;
-        let value_eth = map_eth.get(key);
-        !value_eth ? value_eth = {total_summary: 0} : '';
-        let value_bnb = map_bnb.get(key);
-        !value_bnb ? value_bnb = {total_summary: 0} : '';
-
-        if (value_btc['total_summary'] > value_eth['total_summary'] && value_btc['total_summary'] > value_bnb['total_summary']) {
-            count_wins['btc']['win']++;
-        } else if (value_eth['total_summary'] > value_btc['total_summary'] && value_eth['total_summary'] > value_bnb['total_summary']) {
-            count_wins['eth']['win']++;
-        } else if (value_bnb['total_summary'] > value_btc['total_summary'] && value_bnb['total_summary'] > value_eth['total_summary']) {
-            count_wins['bnb']['win']++;
-        } else if (value_btc['total_summary'] === value_eth['total_summary'] && value_btc['total_summary'] === value_bnb['total_summary']) {
-            count_wins['super_draw']++;
-            // for debugging
-            // let test_btc = value_btc;
-            // let test_eth = value_btc;
-            // let test_bnb = value_btc;
-        } else if (value_btc['total_summary'] === value_eth['total_summary']) {
-            count_wins['btc']['draw']++;
-            count_wins['eth']['draw']++;
-        } else if (value_eth['total_summary'] === value_bnb['total_summary']) {
-            count_wins['eth']['draw']++;
-            count_wins['bnb']['draw']++;
-        } else if (value_btc['total_summary'] === value_bnb['total_summary']) {
-            count_wins['btc']['draw']++;
-            count_wins['bnb']['draw']++;
-        } else {
-            console.log('SHOULD NOT BE COMMITTED');
-        }
-    });
-}
-
-// ORGANIZING ROUNDS ON MAPS
-function makingRoundsData(target_pair, map) {
-
-    let key_list = Object.keys(target_pair);
-    key_list.forEach((key) => {
-        let round = key.split(':')[0] * 20 + Math.floor(parseInt(key.split(':')[1]) / 3) + 1;
-        let cur_pairs = key.split(':')[2];
-        if (!(parseInt(key.split(':')[1]) % 3 === 0 && cur_pairs == '00') &&
-            !(parseInt(key.split(':')[1]) % 3 === 2 &&  cur_pairs == '45')) {
-            // console.log('TARGET: ', key);
-            if (map.has(round)) {
-                let value = map.get(round);
-                value['total_summary'] = value['total_summary'] * 1 + target_pair[key].summary * 1;
-                map.set(round, value);
+            let btc_amount = ele['summary'];
+            let eth_amount = target_eth[`${key}`]['summary'];
+            let bnb_amount = target_bnb[`${key}`]['summary'];
+            if (btc_amount > eth_amount && btc_amount > bnb_amount) {
+                count_wins['btc']['win']++;
+            } else if (eth_amount > btc_amount && eth_amount > bnb_amount) {
+                count_wins['eth']['win']++;
+            } else if (bnb_amount > eth_amount && bnb_amount > btc_amount) {
+                count_wins['bnb']['win']++;
+            } else if (eth_amount === btc_amount && eth_amount === bnb_amount) {
+                count_wins['super_draw']++;
+            } else if (eth_amount === btc_amount) {
+                count_wins['btc']['draw']++;
+                count_wins['eth']['draw']++;
+            } else if (bnb_amount === btc_amount) {
+                count_wins['btc']['draw']++;
+                count_wins['bnb']['draw']++;
+            } else if (eth_amount === bnb_amount) {
+                count_wins['eth']['draw']++;
+                count_wins['bnb']['draw']++;
             } else {
-                let time_min = `${key.split(':')[0]}:${key.split(':')[1]}`;
-                map.set(round, {
-                    total_summary: target_pair[key].summary * 1, time_min: time_min
-                })
+                console.log('SHOULD NOT BE COMMITTED');
             }
-        }
 
-        // if(parseInt(key.split(':')[1]) % 3 === 2 &&  cur_pairs == '45') {
-        //     console.log('------------------------------------')
-        // }
+        }
+        // console.log(key);
+        // console.log(ele);
     })
 
 }
+
 
 
 

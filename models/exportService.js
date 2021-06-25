@@ -17,7 +17,7 @@ const exportCoinDataToExcel = (coin_data, workSheetColumnNames, workSheetName, f
     let key_list = Object.keys(coin_data);
     let export_list = [];
     key_list.forEach(ele => {
-        console.log(ele)
+        // console.log(ele)
         let target_ele = coin_data[ele];
         // console.log(target_ele);
         let insert_obj = [
@@ -33,7 +33,7 @@ const exportCoinDataToExcel = (coin_data, workSheetColumnNames, workSheetName, f
 
     console.log('**********************************');
     console.log('key list size: ', key_list.length);
-    console.log(export_list);
+    // console.log(export_list);
     console.log('export list size: ', export_list.length);
 
     exportExcel(export_list, workSheetColumnNames, workSheetName, filePath);
