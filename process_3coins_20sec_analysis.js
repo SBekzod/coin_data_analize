@@ -53,9 +53,9 @@ setTimeout(async function() {
 
         // Transfer to Excel
         const workSheetColumnNames = ['TIME_UTC', 'SUMMARY', 'DB_ID', 'TIMESTAMP', 'CLOSE', 'TIME12'];
-        exportCoinDataToExcel(target_btc, workSheetColumnNames, 'btc_5mx20s', filePath_btc);
-        exportCoinDataToExcel(target_eth, workSheetColumnNames, 'eth_5mx20s', filePath_eth);
-        exportCoinDataToExcel(target_bnb, workSheetColumnNames, 'bnb_5mx20s', filePath_bnb);
+        exportCoinDataToExcel(target_btc, workSheetColumnNames, 'btc_20s', filePath_btc);
+        exportCoinDataToExcel(target_eth, workSheetColumnNames, 'eth_20s', filePath_eth);
+        exportCoinDataToExcel(target_bnb, workSheetColumnNames, 'bnb_20s', filePath_bnb);
         // console.log(target_btc);
 
         // GETTING WINNER INFORMATION
