@@ -5,12 +5,18 @@ dotenv.config({path: './.env'});
 const MySql = require('./models/mysql2');
 const db = new MySql();
 const exportCoinDataToExcel = require('./models/exportService');
-const filePath = './outputs/excel-from-js.xlsx'
+const filePath_btc = './outputs/btc-20s.xlsx'
+const filePath_eth = './outputs/eth-20s.xlsx'
+const filePath_bnb = './outputs/bnb-20s.xlsx'
 
 
-let target_btc = {}, zero_btc = 0;
-let target_eth = {}, zero_eth = 0;
-let target_bnb = {}, zero_bnb = 0;
+let target_btc = {}, target_eth = {}, target_bnb = {};
+
+let doubles_btc = {'00': 0, '11': 0, '22': 0, '33': 0, '44': 0, '55': 0, '66': 0, '77': 0, '88': 0, '99': 0};
+let doubles_eth = {'00': 0, '11': 0, '22': 0, '33': 0, '44': 0, '55': 0, '66': 0, '77': 0, '88': 0, '99': 0};
+let doubles_bnb = {'00': 0, '11': 0, '22': 0, '33': 0, '44': 0, '55': 0, '66': 0, '77': 0, '88': 0, '99': 0};
+
+
 let count_wins = {
     'btc': {'win': 0, 'draw': 0},
     'eth': {'win': 0, 'draw': 0},
@@ -37,16 +43,19 @@ setTimeout(async function() {
 
         // Results
         console.log('::RESULTS::');
-        console.log(`BTC total ${Object.keys(target_btc).length} and double zero came ${zero_btc} times`);
-        console.log(`ETH total ${Object.keys(target_eth).length} and double zero came ${zero_eth} times`);
-        console.log(`BNB total ${Object.keys(target_bnb).length} and double zero came ${zero_bnb} times`);
+        console.log(`BTC total ${Object.keys(target_btc).length}`);
+        console.log(`ETH total ${Object.keys(target_eth).length}`);
+        console.log(`BNB total ${Object.keys(target_bnb).length}`);
+        console.log('btc:', doubles_btc);
+        console.log('eth:', doubles_eth);
+        console.log('bnb:', doubles_bnb);
 
 
         // Transfer to Excel
-        // const workSheetColumnNames = ['TIME_UTC', 'SUMMARY', 'DB_ID', 'TIMESTAMP', 'CLOSE', 'TIME12'];
-        // const workSheetName = 'BTC'
-        // exportCoinDataToExcel(target_btc, workSheetColumnNames, workSheetName, filePath);
-
+        const workSheetColumnNames = ['TIME_UTC', 'SUMMARY', 'DB_ID', 'TIMESTAMP', 'CLOSE', 'TIME12'];
+        exportCoinDataToExcel(target_btc, workSheetColumnNames, 'btc_5mx20s', filePath_btc);
+        exportCoinDataToExcel(target_eth, workSheetColumnNames, 'eth_5mx20s', filePath_eth);
+        exportCoinDataToExcel(target_bnb, workSheetColumnNames, 'bnb_5mx20s', filePath_bnb);
         // console.log(target_btc);
 
         // GETTING WINNER INFORMATION
@@ -60,10 +69,12 @@ setTimeout(async function() {
 }, 1000);
 
 
+// ORGANIZING TIME PERIODS
 function preparingCoinData(raw_data, coin_type) {
     raw_data.map(ele => {
         let time = new Date(parseInt(ele['binstamp']));
-        if(time.getSeconds() % 10 === 0) {
+        if (time.getSeconds() % 20 === 0) {
+            // if (time.getSeconds() % 10 === 0 && time.getSeconds() !== 0) {
             let hour = shapingTime(time.getUTCHours());
             let minutes = shapingTime(time.getMinutes());
             let seconds = shapingTime(time.getSeconds());
@@ -84,14 +95,11 @@ function shapingTime(value) {
 }
 
 
+// CUMULATIVE SUMMARY CALCULATION
 function cumulateDigits(ele, key, coin_type) {
 
     let numb, first_digit, second_digit;
-    if (coin_type === 'doge') {
-        numb = Math.floor(ele.close * 1000000 / 10) % 100
-    } else {
-        numb = Math.floor(ele.close * 1000 / 10) % 100;
-    }
+    numb = Math.floor(ele.close * 1000 / 10) % 100;
 
     if (numb < 10) {
         first_digit = 0;
@@ -102,26 +110,59 @@ function cumulateDigits(ele, key, coin_type) {
     }
 
     let summary = first_digit + second_digit;
-    if (summary > 10) {
-        summary = summary % 10;
-    } else if (summary === 0) {
-        if (coin_type == 'bitcoin') {
-            zero_btc++;
-        } else if (coin_type == 'ethereum') {
-            zero_eth++;
-        } else {
-            zero_bnb++;
-        }
-        summary = 10;
-    }
 
-    // console.log(`the number: ${numb} and summary: ${summary}`);
+    if(first_digit === second_digit) {
+        switch (coin_type) {
+            case 'bitcoin':
+                doubles_btc[`${first_digit}${second_digit}`]++;
+                break;
+            case 'ethereum':
+                doubles_eth[`${first_digit}${second_digit}`]++;
+                break;
+            case 'binance':
+                doubles_bnb[`${first_digit}${second_digit}`]++;
+                break;
+            default:
+                console.log('should not reach');
+                break;
+        }
+        let double_summary = 0;
+        switch(first_digit) {
+            case 0:
+            case 5:
+                double_summary = 20;
+                break;
+            case 1:
+            case 6:
+                double_summary = 4;
+                break;
+            case 2:
+            case 7:
+                double_summary = 8;
+                break;
+            case 3:
+            case 8:
+                double_summary = 12;
+                break;
+            case 4:
+            case 9:
+                double_summary = 16;
+                break;
+            default:
+                console.log('should not reach: doubles');
+                console.log(first_digit);
+                break;
+        }
+        summary = double_summary;
+    } else if (summary > 10) {
+        summary = summary % 10;
+    }
 
     if (coin_type === 'bitcoin') {
         target_btc[`${key}`] = {summary, data: ele};
     } else if (coin_type === 'ethereum') {
         target_eth[`${key}`] = {summary, data: ele};
-    } else {
+    } else if (coin_type === 'binance') {
         target_bnb[`${key}`] = {summary, data: ele};
     }
 

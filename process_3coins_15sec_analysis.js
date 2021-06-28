@@ -173,7 +173,7 @@ function preparingWinnerData() {
         let ele = target_btc[`${key}`];
         if (target_eth.hasOwnProperty(`${key}`) && target_bnb.hasOwnProperty(`${key}`)) {
             count_wins['rounds_checked']++;
-            console.log('*****************');
+            // console.log('*****************');
 
             let btc_amount = ele['summary'];
             let eth_amount = target_eth[`${key}`]['summary'];
