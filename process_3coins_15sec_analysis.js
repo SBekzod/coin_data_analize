@@ -46,16 +46,16 @@ setTimeout(async function() {
         console.log(`BTC total ${Object.keys(target_btc).length}`);
         console.log(`ETH total ${Object.keys(target_eth).length}`);
         console.log(`BNB total ${Object.keys(target_bnb).length}`);
-        // console.log('btc:', doubles_btc);
-        // console.log('eth:', doubles_eth);
-        // console.log('bnb:', doubles_bnb);
+        console.log('btc:', doubles_btc);
+        console.log('eth:', doubles_eth);
+        console.log('bnb:', doubles_bnb);
 
 
         // Transfer to Excel
         const workSheetColumnNames = ['TIME_UTC', 'SUMMARY', 'DB_ID', 'TIMESTAMP', 'CLOSE', 'TIME12'];
-        exportCoinDataToExcel(target_btc, workSheetColumnNames, 'btc_3mx15s', filePath_btc);
-        exportCoinDataToExcel(target_eth, workSheetColumnNames, 'eth_3mx15s', filePath_eth);
-        exportCoinDataToExcel(target_bnb, workSheetColumnNames, 'bnb_3mx15s', filePath_bnb);
+        exportCoinDataToExcel(target_btc, workSheetColumnNames, 'btc_15s', filePath_btc);
+        exportCoinDataToExcel(target_eth, workSheetColumnNames, 'eth_15s', filePath_eth);
+        exportCoinDataToExcel(target_bnb, workSheetColumnNames, 'bnb_15s', filePath_bnb);
         // console.log(target_btc);
 
         // GETTING WINNER INFORMATION
@@ -99,7 +99,7 @@ function shapingTime(value) {
 function cumulateDigits(ele, key, coin_type) {
 
     let numb, first_digit, second_digit;
-    numb = Math.floor(ele.close * 1000 / 10) % 100;
+    numb = Math.round(ele.close * 100) % 100;
 
     if (numb < 10) {
         first_digit = 0;

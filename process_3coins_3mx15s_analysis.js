@@ -58,9 +58,9 @@ setTimeout(async function() {
 
         // Transfer to Excel
         const workSheetColumnNames = ['Rounds', 'TIME_MIN', 'TOTAL'];
-        exportCoinDataToExcel(map_btc, workSheetColumnNames, 'btc_3min', filePath_btc);
-        exportCoinDataToExcel(map_eth, workSheetColumnNames, 'eth_3min', filePath_eth);
-        exportCoinDataToExcel(map_bnb, workSheetColumnNames, 'bnb_3min', filePath_bnb);
+        exportCoinDataToExcel(map_btc, workSheetColumnNames, 'btc_3mx15s', filePath_btc);
+        exportCoinDataToExcel(map_eth, workSheetColumnNames, 'eth_3mx15s', filePath_eth);
+        exportCoinDataToExcel(map_bnb, workSheetColumnNames, 'bnb_3mx15s', filePath_bnb);
 
 
         // GETTING WINNER INFORMATION

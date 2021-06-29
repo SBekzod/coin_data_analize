@@ -16,8 +16,8 @@ const filePath_bnb = './outputs/bnb-5mx20s.xlsx';
 let target_btc = {}, target_eth = {}, target_bnb = {};
 
 let count_wins = {
-    'fire_win': 0,
-    'water_win': 0,
+    'fire_even_win': 0,
+    'water_odd_win': 0,
     'rounds_checked': 0,
     'gen_even_win': 0,
     'gen_odd_win': 0,
@@ -36,38 +36,38 @@ setTimeout(async function () {
             const end_day = moment.utc().add(-i, 'day').endOf('day').format('YYYY-MM-DD HH:mm:ss');
             console.log('Started', start_day);
 
-            // let res_bit = await db.prepareOneDayTicksBitcoin(start_day, end_day)
+            let res_bit = await db.prepareOneDayTicksBitcoin(start_day, end_day)
             // let res_eth = await db.prepareOneDayTicksEther(start_day, end_day)
-            let res_bnb = await db.prepareOneDayTickBNB(start_day, end_day)
-            // preparingCoinData(res_bit, 'bitcoin');
+            // let res_bnb = await db.prepareOneDayTickBNB(start_day, end_day)
+            preparingCoinData(res_bit, 'bitcoin');
             // preparingCoinData(res_eth, 'ethereum');
-            preparingCoinData(res_bnb, 'binance');
+            // preparingCoinData(res_bnb, 'binance');
         }
 
         // Results
         console.log('::RESULTS::');
         // console.log(target_btc);
 
-        // makingRoundsData(target_btc, map_btc);
+        makingRoundsData(target_btc, map_btc);
         // makingRoundsData(target_eth, map_eth);
-        makingRoundsData(target_bnb, map_bnb);
+        // makingRoundsData(target_bnb, map_bnb);
         // console.log(map_btc)
 
         // Transfer to Excel
         const workSheetColumnNamesAll = ['TIME_UTC', 'WINNER_TYPE', 'DB_ID', 'TIMESTAMP', 'CLOSE', 'TIME12'];
-        // exportCoinDataToExcelAll(target_btc, workSheetColumnNamesAll, 'btc_20s', filePath_btc_all);
+        exportCoinDataToExcelAll(target_btc, workSheetColumnNamesAll, 'btc_20s', filePath_btc_all);
         // exportCoinDataToExcelAll(target_eth, workSheetColumnNamesAll, 'eth_20s', filePath_eth_all);
         // exportCoinDataToExcelAll(target_bnb, workSheetColumnNamesAll, 'bnb_20s', filePath_bnb_all);
 
         const workSheetColumnNamesRounds = ['Rounds', 'TIME_MIN', 'WINNER', 'RANGE', 'FIRST_WINNER_TYPE'];
-        // exportCoinDataToExcel(map_btc, workSheetColumnNamesRounds, 'btc_5mx20s', filePath_btc);
+        exportCoinDataToExcel(map_btc, workSheetColumnNamesRounds, 'btc_5mx20s', filePath_btc);
         // exportCoinDataToExcel(map_eth, workSheetColumnNamesRounds, 'eth_5mx20s', filePath_eth);
         // exportCoinDataToExcel(map_bnb, workSheetColumnNamesRounds, 'bnb_5mx20s', filePath_bnb);
 
         // GETTING WINNER INFORMATION
-        // preparingWinnerData(map_bnb);
+        preparingWinnerData(map_btc);
         // preparingWinnerData(map_eth);
-        preparingWinnerData(map_bnb);
+        // preparingWinnerData(map_bnb);
         console.log(count_wins);
 
     } catch (err) {
@@ -122,12 +122,12 @@ function declaringResults(ele, key, coin_type) {
 // PREPARING WIN INFORMATION DATA
 function preparingWinnerData(map) {
 
-    map.forEach(function (value_btc, key) {
+    map.forEach(function (value, key) {
         count_wins['rounds_checked']++;
-        if(value_btc['winner'] === 'even') {
-            count_wins['fire_win']++;
-        } else if(value_btc['winner'] === 'odd') {
-            count_wins['water_win']++;
+        if(value['winner'] === 'even') {
+            count_wins['fire_even_win']++;
+        } else if(value['winner'] === 'odd') {
+            count_wins['water_odd_win']++;
         } else {
             console.log('Should not reach this');
         }
