@@ -13,20 +13,19 @@ const filePath_btc = './outputs/btc-5mx20s.xlsx';
 const filePath_eth = './outputs/eth-5mx20s.xlsx';
 const filePath_bnb = './outputs/bnb-5mx20s.xlsx';
 
+let prev_key_checker = '';
 let target_btc = {}, target_eth = {}, target_bnb = {};
-
 let count_wins = {
     'fire_even_win': 0,
     'water_odd_win': 0,
     'rounds_checked': 0,
     'gen_even_win': 0,
     'gen_odd_win': 0,
-    'total': 0
+    'total': 0,
 };
 let map_btc = new Map();
 let map_eth = new Map();
 let map_bnb = new Map();
-
 
 setTimeout(async function () {
 
@@ -47,11 +46,12 @@ setTimeout(async function () {
         // Results
         console.log('::RESULTS::');
         // console.log(target_btc);
+        // console.log(Object.keys(target_btc).length);
 
         makingRoundsData(target_btc, map_btc);
         // makingRoundsData(target_eth, map_eth);
         // makingRoundsData(target_bnb, map_bnb);
-        // console.log(map_btc)
+        // console.log(map_bnb)
 
         // Transfer to Excel
         const workSheetColumnNamesAll = ['TIME_UTC', 'WINNER_TYPE', 'DB_ID', 'TIMESTAMP', 'CLOSE', 'TIME12'];
@@ -59,7 +59,7 @@ setTimeout(async function () {
         // exportCoinDataToExcelAll(target_eth, workSheetColumnNamesAll, 'eth_20s', filePath_eth_all);
         // exportCoinDataToExcelAll(target_bnb, workSheetColumnNamesAll, 'bnb_20s', filePath_bnb_all);
 
-        const workSheetColumnNamesRounds = ['Rounds', 'TIME_MIN', 'WINNER', 'RANGE', 'FIRST_WINNER_TYPE'];
+        const workSheetColumnNamesRounds = ['ROUNDS', 'TIME_MIN', 'WINNER', 'RANGE', 'FIRST_WINNER_TYPE', 'D-SHOT'];
         exportCoinDataToExcel(map_btc, workSheetColumnNamesRounds, 'btc_5mx20s', filePath_btc);
         // exportCoinDataToExcel(map_eth, workSheetColumnNamesRounds, 'eth_5mx20s', filePath_eth);
         // exportCoinDataToExcel(map_bnb, workSheetColumnNamesRounds, 'bnb_5mx20s', filePath_bnb);
@@ -85,7 +85,13 @@ function preparingCoinData(raw_data, coin_type) {
             let minutes = shapingTime(time.getMinutes());
             let seconds = shapingTime(time.getSeconds());
             let key = `${hour}:${minutes}:${seconds}`;
-            declaringResults(ele, key, coin_type);
+
+            //TODO: Find solution for db collection
+            if(key !== prev_key_checker) {
+                prev_key_checker = key;
+                declaringResults(ele, key, coin_type);
+            }
+
         }
     })
 }
@@ -106,17 +112,21 @@ function declaringResults(ele, key, coin_type) {
     let result = (numb % 2 === 0) ? 'even' : 'odd';
     if (coin_type === 'bitcoin') {
         target_btc[`${key}`] = {result: result, data: ele};
-    } else if(coin_type === 'ethereum') {
+    } else if (coin_type === 'ethereum') {
         target_eth[`${key}`] = {result: result, data: ele};
     } else {
         target_bnb[`${key}`] = {result: result, data: ele};
     }
+
     if (result === 'even') {
         count_wins['gen_even_win']++;
-    } else {
+    } else if (result === 'odd') {
         count_wins['gen_odd_win']++;
+    } else {
+        console.log('Should not reach on declare results');
     }
     count_wins['total']++;
+
 }
 
 // PREPARING WIN INFORMATION DATA
@@ -124,12 +134,12 @@ function preparingWinnerData(map) {
 
     map.forEach(function (value, key) {
         count_wins['rounds_checked']++;
-        if(value['winner'] === 'even') {
+        if (value['winner'] === 'even') {
             count_wins['fire_even_win']++;
-        } else if(value['winner'] === 'odd') {
+        } else if (value['winner'] === 'odd') {
             count_wins['water_odd_win']++;
         } else {
-            console.log('Should not reach this');
+            console.log('Should not reach on prepare winner');
         }
     });
 }
@@ -144,6 +154,9 @@ function makingRoundsData(target_pair, map) {
         if (!(parseInt(key.split(':')[1]) % 5 === 0 && cur_pairs == '00') &&
             !(parseInt(key.split(':')[1]) % 5 === 4 && (cur_pairs == '00' || cur_pairs == '20' || cur_pairs == '40'))) {
             // console.log('TARGET: ', key);
+
+            let shot_order = definingShot(key);
+            // console.log('SHOT_ORDER: ', shot_order);
 
             if (map.has(round)) {
                 let value = map.get(round);
@@ -163,9 +176,18 @@ function makingRoundsData(target_pair, map) {
                     }
                 }
                 value['counts'] += 1;
+
+                // COLLECTING D_SHOT AND WINNER INFORMATION
+                if ((value['total_wins_even'] >= 6 || value['total_wins_odd'] >= 6) && value['d_shot'] === 0) {
+                    value['d_shot'] = shot_order;
+                    value.winner = (value['total_wins_even'] > value['total_wins_odd']) ? 'even' : 'odd';
+                }
+
+
+
                 map.set(round, value);
             } else {
-                let new_input = {winner: null, counts: 1};
+                let new_input = {winner: null, counts: 1, d_shot: 0};
                 new_input['time_min'] = `${key.split(':')[0]}:${key.split(':')[1]}`;
                 if (target_pair[key].result === 'odd') {
                     new_input['total_wins_odd'] = 1;
@@ -183,21 +205,74 @@ function makingRoundsData(target_pair, map) {
 
         }
 
-        // declaring the winner of the round
+        // EXTRA CHECK FOR WINNER OF THE ROUND
         if (parseInt(key.split(':')[1]) % 5 === 4) {
-            let results = map.get(round);
-            if(results['range'] >= 6) {
-                results.winner = results['first_winner'];
-                // console.log('+++++++++++++++')
-            } else {
-                results.winner = (results['total_wins_even'] > results['total_wins_odd']) ? 'even' : 'odd';
+            let result = map.get(round);
+            if (result['d_shot'] === 0) {
+                if (result['total_wins_even'] = result['total_wins_odd']) {
+                    result.winner = (Math.floor(Math.random() * 2) === 0) ? 'even' : 'odd';
+                    result['d_shot'] = result['counts'];
+                } else {
+                    result.winner = (result['total_wins_even'] > result['total_wins_odd']) ? 'even' : 'odd';
+                    result['d_shot'] = result['counts'];
+                }
+
+                map.set(round, result);
             }
-            map.set(round, results);
         }
+
     })
 
 }
 
+
+// SHOT ORDER DEFINER
+function definingShot(key) {
+
+    let order_shot = 0,
+        min = parseInt(key.split(':')[1]),
+        second = key.split(':')[2];
+
+    switch (true) {
+        case (min % 5 === 0 && second === '20'):
+            order_shot = 1;
+            break;
+        case (min % 5 === 0 && second === '40'):
+            order_shot = 2;
+            break;
+        case (min % 5 === 1 && second === '00'):
+            order_shot = 3;
+            break;
+        case (min % 5 === 1 && second === '20'):
+            order_shot = 4;
+            break;
+        case (min % 5 === 1 && second === '40'):
+            order_shot = 5;
+            break;
+        case (min % 5 === 2 && second === '00'):
+            order_shot = 6;
+            break;
+        case (min % 5 === 2 && second === '20'):
+            order_shot = 7;
+            break;
+        case (min % 5 === 2 && second === '40'):
+            order_shot = 8;
+            break;
+        case (min % 5 === 3 && second === '00'):
+            order_shot = 9;
+            break;
+        case (min % 5 === 3 && second === '20'):
+            order_shot = 10;
+            break;
+        case (min % 5 === 3 && second === '40'):
+            order_shot = 11;
+            break;
+        default:
+            console.log('SHOULD NOT REACH THIS CODE on SHOT ORDER FUNCTION');
+            break;
+    }
+    return order_shot
+}
 
 
 

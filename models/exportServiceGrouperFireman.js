@@ -21,7 +21,8 @@ const exportCoinDataToExcel = (map, workSheetColumnNames, workSheetName, filePat
             value['time_min'],
             value['winner'],
             value['range'],
-            value['first_winner']
+            value['first_winner'],
+            value['d_shot']
         ];
         export_list.push(insert_obj);
     });
