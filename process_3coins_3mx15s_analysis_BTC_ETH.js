@@ -122,6 +122,8 @@ function cumulateDigits(ele, key, coin_type) {
         let double_summary = 0;
         switch(first_digit) {
             case 0:
+                double_summary = 0;
+                break;
             case 5:
                 double_summary = 20;
                 break;
