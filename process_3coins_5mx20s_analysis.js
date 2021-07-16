@@ -108,7 +108,8 @@ function shapingTime(value) {
 
 // CUMULATIVE SUMMARY CALCULATION
 function declaringResults(ele, key, coin_type) {
-    let numb = Math.round(ele.close * 100) % 100;
+    let total_numb = Math.round(ele.close * 100) % 100;
+    let numb = Math.trunc(total_numb / 10) + total_numb % 10;
     let result = (numb % 2 === 0) ? 'even' : 'odd';
     if (coin_type === 'bitcoin') {
         target_btc[`${key}`] = {result: result, data: ele};
