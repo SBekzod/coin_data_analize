@@ -111,7 +111,7 @@ function cumulateDigits(ele, key, coin_type) {
 
     let summary = first_digit + second_digit;
 
-    if(first_digit === second_digit && false) {
+    if(first_digit === second_digit) {
         switch (coin_type) {
             case 'bitcoin':
                 doubles_btc[`${first_digit}${second_digit}`]++;
