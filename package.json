@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "SET NODE.ENV=PRODUCTION&& nodemon process_1coin_1sec_2digits_analysis.js",
+    "start": "SET NODE.ENV=PRODUCTION&& nodemon process_totals.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "SET NODE.ENV=DEVELOPMENT&& nodemon process_1coin_1sec_2digits_analysis.js"
+    "dev": "SET NODE.ENV=DEVELOPMENT&& nodemon process_totals.js"
   },
   "keywords": [],
   "author": "",

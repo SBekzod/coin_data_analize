@@ -5,14 +5,13 @@ dotenv.config({path: './.env'});
 const MySql = require('./models/mysql2');
 const db = new MySql();
 const exportCoinDataToExcelAll = require('./models/exportServiceFireman');
-const filePath_btc_all = './outputs/btc-20s.xlsx';
-const filePath_eth_all = './outputs/eth-20s.xlsx';
-const filePath_bnb_all = './outputs/bnb-20s.xlsx';
+const filePath_btc_all = './outputs/btc-30s.xlsx';
+const filePath_eth_all = './outputs/eth-30s.xlsx';
+const filePath_bnb_all = './outputs/bnb-30s.xlsx';
 const exportCoinDataToExcel = require('./models/exportServiceGrouperFireman');
-const filePath_btc = './outputs/btc-5mx20s.xlsx';
-const filePath_eth = './outputs/eth-5mx20s.xlsx';
-const filePath_bnb = './outputs/bnb-5mx20s.xlsx';
-
+const filePath_btc = './outputs/btc-5mx30s.xlsx';
+const filePath_eth = './outputs/eth-5mx30s.xlsx';
+const filePath_bnb = './outputs/bnb-5mx30s.xlsx';
 let prev_key_checker = '';
 let target_btc = {}, target_eth = {}, target_bnb = {};
 let count_wins = {
@@ -43,15 +42,9 @@ setTimeout(async function () {
             // preparingCoinData(res_bnb, 'binance');
         }
 
-        // Results
-        console.log('::RESULTS::');
-        // console.log(target_btc);
-        // console.log(Object.keys(target_btc).length);
-
         makingRoundsData(target_btc, map_btc);
         // makingRoundsData(target_eth, map_eth);
         // makingRoundsData(target_bnb, map_bnb);
-        // console.log(map_bnb)
 
         // Transfer to Excel
         const workSheetColumnNamesAll = ['TIME_UTC', 'WINNER_TYPE', 'DB_ID', 'TIMESTAMP', 'CLOSE', 'TIME12'];
@@ -76,18 +69,19 @@ setTimeout(async function () {
 }, 1000);
 
 
+
 // ORGANIZING TIME PERIODS
 function preparingCoinData(raw_data, coin_type) {
     raw_data.map(ele => {
         let time = new Date(parseInt(ele['binstamp']));
-        if (time.getSeconds() % 20 === 0) {
+        if (time.getSeconds() % 30 === 0) {
             let hour = shapingTime(time.getUTCHours());
             let minutes = shapingTime(time.getMinutes());
             let seconds = shapingTime(time.getSeconds());
             let key = `${hour}:${minutes}:${seconds}`;
 
             //TODO: Find solution for db collection
-            if(key !== prev_key_checker) {
+            if (key !== prev_key_checker) {
                 prev_key_checker = key;
                 declaringResults(ele, key, coin_type);
             }
@@ -95,7 +89,6 @@ function preparingCoinData(raw_data, coin_type) {
         }
     })
 }
-
 function shapingTime(value) {
     if (value == 0) {
         return '00';
@@ -105,7 +98,6 @@ function shapingTime(value) {
         return value;
     }
 }
-
 // CUMULATIVE SUMMARY CALCULATION
 function declaringResults(ele, key, coin_type) {
     let numb = Math.round(ele.close * 100) % 100;
@@ -131,20 +123,7 @@ function declaringResults(ele, key, coin_type) {
 
 }
 
-// PREPARING WIN INFORMATION DATA
-function preparingWinnerData(map) {
 
-    map.forEach(function (value, key) {
-        count_wins['rounds_checked']++;
-        if (value['winner'] === 'even') {
-            count_wins['fire_even_win']++;
-        } else if (value['winner'] === 'odd') {
-            count_wins['water_odd_win']++;
-        } else {
-            console.log('Should not reach on prepare winner');
-        }
-    });
-}
 
 // ORGANIZING ROUNDS ON MAPS
 function makingRoundsData(target_pair, map) {
@@ -186,7 +165,6 @@ function makingRoundsData(target_pair, map) {
                 }
 
 
-
                 map.set(round, value);
             } else {
                 let new_input = {winner: null, counts: 1, d_shot: 0};
@@ -226,8 +204,6 @@ function makingRoundsData(target_pair, map) {
     })
 
 }
-
-
 // SHOT ORDER DEFINER
 function definingShot(key) {
 
@@ -277,5 +253,20 @@ function definingShot(key) {
 }
 
 
+
+// PREPARING WIN INFORMATION DATA
+function preparingWinnerData(map) {
+
+    map.forEach(function (value, key) {
+        count_wins['rounds_checked']++;
+        if (value['winner'] === 'even') {
+            count_wins['fire_even_win']++;
+        } else if (value['winner'] === 'odd') {
+            count_wins['water_odd_win']++;
+        } else {
+            console.log('Should not reach on prepare winner');
+        }
+    });
+}
 
 
