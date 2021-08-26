@@ -21,8 +21,8 @@ setTimeout(async function() {
             fir_target[`${i}`] = {start_day: start_day, '0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0, 'total': 0};
             sec_target[`${i}`] = {start_day: start_day, '0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0, 'total': 0};
 
-            // let response = await db.prepareOneDayTicksBitcoin(start_day, end_day)
-            let response = await db.prepareOneDayTicksEther(start_day, end_day)
+            let response = await db.prepareOneDayTicksBitcoin(start_day, end_day)
+            // let response = await db.prepareOneDayTicksEther(start_day, end_day)
             // let response = await db.prepareOneDayTickBNB(start_day, end_day)
 
             console.log(`Total tick counts: ${response.length}`);
@@ -48,11 +48,11 @@ setTimeout(async function() {
 }, 1000);
 
 
-function declareDigits(price, i) {
+function declareDigits(volume, i) {
 
-    let numb = Math.round(price * 1000000) % 100, first_digit, second_digit;
-    // let numb = Math.round(price * 100000) % 100, first_digit, second_digit;
-    // let numb = Math.round(price * 10000) % 100, first_digit, second_digit;
+    let numb = Math.round(volume * 1000000) % 100, first_digit, second_digit;
+    // let numb = Math.round(volume * 100000) % 100, first_digit, second_digit;
+    // let numb = Math.round(volume * 10000) % 100, first_digit, second_digit;
 
 
     if(numb < 10) {
