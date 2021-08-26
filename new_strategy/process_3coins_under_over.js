@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 dotenv.config({path: './../.env'});
 const MySql = require('./../models/mysql2');
 const db = new MySql();
-const exportCoinDataToExcelAll = require('./../models/exportServiceFireman');
+const exportCoinDataToExcelAll = require('./../models/volum_added/exportServiceFireman');
 const filePath_btc_all = './../outputs/btc-30s.xlsx';
 const filePath_eth_all = './../outputs/eth-30s.xlsx';
 const filePath_bnb_all = './../outputs/bnb-30s.xlsx';
@@ -53,7 +53,7 @@ setTimeout(async function () {
 
 
         // Transfer to Excel
-        const workSheetColumnNamesAll = ['TIME_UTC', 'WINNER_TYPE', 'DB_ID', 'TIMESTAMP', 'CLOSE', 'TIME12'];
+        const workSheetColumnNamesAll = ['TIME_UTC', 'WINNER_TYPE', 'DB_ID', 'TIMESTAMP', 'CLOSE', 'VOLUME', 'TIME12'];
         exportCoinDataToExcelAll(target_btc, workSheetColumnNamesAll, 'btc_20s', filePath_btc_all);
         // exportCoinDataToExcelAll(target_eth, workSheetColumnNamesAll, 'eth_20s', filePath_eth_all);
         // exportCoinDataToExcelAll(target_bnb, workSheetColumnNamesAll, 'bnb_20s', filePath_bnb_all);
@@ -96,16 +96,6 @@ function preparingCoinData(raw_data, coin_type) {
                 declaringResults(ele, key, coin_type);
             }
         }
-        // else if (previous_datetime !== null) {
-        //
-        //     let difference = moment.duration(moment(time).diff(previous_datetime));
-        //     if (difference.asSeconds() * 1 > 31) {
-        //         // console.log(moment(time).format('MM-DD-YYYY HH:mm:ss'));
-        //         // console.log(next_key);
-        //         previous_datetime = moment(time);
-        //         declaringResults(ele, next_key, coin_type);
-        //     }
-        // }
     })
 }
 function shapingTime(value) {
@@ -119,16 +109,38 @@ function shapingTime(value) {
 }
 // CUMULATIVE SUMMARY CALCULATION
 function declaringResults(ele, key, coin_type) {
+
+    let summary = 0, result, numb_volume;
     let numb = Math.round(ele.close * 100) % 100;
-    // let total_numb = Math.round(ele.close * 100) % 100;
-    // let numb = Math.trunc(total_numb / 10) + total_numb % 10;
-    let result = (numb % 2 === 0) ? 'even' : 'odd';
+    summary += numb;
+
     if (coin_type === 'bitcoin') {
+
+        // adding the volume data amount final digit
+        numb_volume = Math.round(ele.volume * 1000000) % 100;
+        summary += numb_volume;
+
+        result = (summary % 2 === 0) ? 'even' : 'odd';
         target_btc[`${key}`] = {result: result, data: ele};
+
     } else if (coin_type === 'ethereum') {
+
+        // adding the volume data amount final digit
+        numb_volume = Math.round(ele.volume * 100000) % 100;
+        summary += numb_volume;
+
+        result = (summary % 2 === 0) ? 'even' : 'odd';
         target_eth[`${key}`] = {result: result, data: ele};
+
     } else {
+
+        // adding the volume data amount final digit
+        numb_volume = Math.round(ele.volume * 10000) % 100;
+        summary += numb_volume;
+
+        result = (summary % 2 === 0) ? 'even' : 'odd';
         target_bnb[`${key}`] = {result: result, data: ele};
+
     }
 
     if (result === 'even') {
